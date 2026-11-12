@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Control - Control de Asistencia y Nómina</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%234f46e5'><path d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z'/></svg>">
+    <style>
+        body.dashboard-page {
+            background-color: #0b1120;
+            color: #f1f5f9;
+            min-height: 100vh;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .navbar {
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 1rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.15rem;
+        }
+
+        .navbar-brand-icon {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .navbar-brand-icon svg {
+            width: 20px;
+            height: 20px;
+            color: #fff;
+        }
+
+        .navbar-user {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .user-info {
+            text-align: right;
+        }
+
+        .user-name {
+            font-weight: 600;
+            font-size: 0.925rem;
+            display: block;
+        }
+
+        .user-role {
+            font-size: 0.75rem;
+            color: #38bdf8;
+            background: rgba(56, 189, 248, 0.12);
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+            display: inline-block;
+            font-weight: 600;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .btn-view-code {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(99, 102, 241, 0.15);
+            color: #818cf8;
+            border: 1px solid rgba(99, 102, 241, 0.35);
+            padding: 0.5rem 0.9rem;
+            border-radius: var(--radius-md);
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .btn-view-code:hover {
+            background: var(--primary);
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .btn-logout {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(239, 68, 68, 0.15);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .btn-logout:hover {
+            background: #ef4444;
+            color: #fff;
+            transform: translateY(-1px);
+        }
+
+        .main-container {
+            flex: 1;
+            max-width: 1200px;
+            width: 100%;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+
+        .welcome-header {
+            margin-bottom: 2rem;
+            animation: cardEntrance 0.6s ease-out;
+        }
+
+        .welcome-header h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.35rem;
+        }
+
+        .welcome-header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .badge-gh {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #34d399;
+            padding: 0.25rem 0.65rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2.5rem;
+        }
+
+        .stat-card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+            transition: var(--transition);
+            animation: cardEntrance 0.7s ease-out;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 12px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        .stat-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .stat-icon svg { width: 26px; height: 26px; }
+        .stat-icon.blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+        .stat-icon.emerald { background: rgba(16, 185, 129, 0.15); color: #34d399; }
+        .stat-icon.purple { background: rgba(139, 92, 246, 0.15); color: #a78bfa; }
+        .stat-icon.amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+
+        .stat-details h3 {
+            font-size: 1.65rem;
+            font-weight: 700;
+            color: #fff;
+            line-height: 1.2;
+        }
+
+        .stat-details p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-top: 0.2rem;
+        }
+
+        .section-card {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: var(--radius-lg);
+            padding: 1.75rem;
+            margin-bottom: 2rem;
+            animation: cardEntrance 0.8s ease-out;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.25rem;
+        }
+
+        .section-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .badge-count {
+            background: rgba(99, 102, 241, 0.2);
+            color: #818cf8;
+            font-size: 0.75rem;
+            padding: 0.15rem 0.55rem;
+            border-radius: 9999px;
+            font-weight: 600;
+        }
+
+        .table-responsive { overflow-x: auto; }
+        .custom-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; text-align: left; }
+        .custom-table th { padding: 0.85rem 1rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
+        .custom-table td { padding: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.04); color: #e2e8f0; }
+        .custom-table tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+        .type-badge { display: inline-block; font-size: 0.75rem; padding: 0.2rem 0.6rem; border-radius: 6px; font-weight: 500; }
+        .badge-admin { background: rgba(59, 130, 246, 0.15); color: #93c5fd; }
+        .badge-obrero { background: rgba(245, 158, 11, 0.15); color: #fde68a; }
+        .badge-bio { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; }
+        .badge-card { background: rgba(139, 92, 246, 0.15); color: #c4b5fd; }
+
+        footer.dashboard-footer {
+            text-align: center;
+            padding: 1.5rem;
+            font-size: 0.8rem;
+            color: #64748b;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: auto;
+        }
+
+        /* Modal para Explorar Código PHP y SQL */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .modal-box {
+            background: #0f172a;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: var(--radius-lg);
+            width: 100%;
+            max-width: 900px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
+            animation: cardEntrance 0.3s ease-out;
+        }
+
+        .modal-header {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-tabs {
+            display: flex;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            background: rgba(0, 0, 0, 0.25);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: #94a3b8;
+            padding: 0.4rem 0.85rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .tab-btn.active, .tab-btn:hover {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: rgba(99, 102, 241, 0.4);
+            color: #c7d2fe;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .code-container {
+            background: #020617;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 10px;
+            padding: 1.25rem;
+            font-family: 'Consolas', 'Courier New', monospace;
+            font-size: 0.85rem;
+            color: #e2e8f0;
+            white-space: pre-wrap;
+            word-break: break-all;
+            line-height: 1.5;
+        }
+
+        .btn-close-modal {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            padding: 0.4rem;
+            border-radius: 6px;
+        }
+
+        .btn-close-modal:hover { color: #fff; background: rgba(255, 255, 255, 0.1); }
+    </style>
+</head>
+<body class="dashboard-page">
+
+    <header class="navbar">
+        <a href="dashboard.html" class="navbar-brand">
+            <div class="navbar-brand-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                    <line x1="8" y1="21" x2="16" y2="21"></line>
+                    <line x1="12" y1="17" x2="12" y2="21"></line>
+                </svg>
+            </div>
+            <span>Control de Asistencia y Nómina</span>
+        </a>
+
+        <div class="navbar-user">
+            <div class="user-info">
+                <span class="user-name" id="userNameLabel">Carlos Eduardo Mendoza</span>
+                <span class="user-role" id="userRoleLabel">Administrador &bull; Tecnología e Informática</span>
+            </div>
+            <div class="nav-actions">
+                <button type="button" class="btn-view-code" onclick="openCodeModal()">
+                    <svg style="width: 16px; height: 16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="16 18 22 12 16 6"></polyline>
+                        <polyline points="8 6 2 12 8 18"></polyline>
+                    </svg>
+                    <span>Ver Código PHP/SQL</span>
+                </button>
+                <a href="index.html?logout=1" class="btn-logout" title="Cerrar Sesión" onclick="sessionStorage.clear();">
+                    <svg style="width: 16px; height: 16px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    <span>Salir</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-container">
+        
+        <div class="welcome-header">
+            <h2>¡Hola, <span id="welcomeName">Carlos Eduardo Mendoza</span>! 👋 
+                <span class="badge-gh">🚀 Live Demo GitHub Pages</span>
+            </h2>
+            <p>Bienvenido al Sistema Integrado de Control de Asistencia y Gestión de Nómina.</p>
+        </div>
+
+        <!-- Tarjetas Métricas -->
+        <div class="stats-grid">
+            
+            <div class="stat-card">
+                <div class="stat-icon blue">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                </div>
+                <div class="stat-details">
+                    <h3>3</h3>
+                    <p>Empleados Registrados</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon purple">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                    </svg>
+                </div>
+                <div class="stat-details">
+                    <h3>4</h3>
+                    <p>Departamentos</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon emerald">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                </div>
+                <div class="stat-details">
+                    <h3>2</h3>
+                    <p>Asistencias de Hoy</p>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-icon amber">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                </div>
+                <div class="stat-details">
+                    <h3 style="font-size: 1.15rem;">1ra Quincena Noviembre 2026</h3>
+                    <p>Período de Nómina Activo</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Tabla: Empleados Registrados -->
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-title">
+                    <span>👥 Personal de la Empresa</span>
+                    <span class="badge-count">3 registros</span>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Cédula</th>
+                            <th>Nombres y Apellidos</th>
+                            <th>Departamento</th>
+                            <th>Tipo Empleado</th>
+                            <th>Sueldo Base</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>#1</td>
+                            <td><strong>V-10293847</strong></td>
+                            <td>Carlos Eduardo Mendoza Castillo</td>
+                            <td>Tecnología e Informática</td>
+                            <td><span class="type-badge badge-admin">Administrativo</span></td>
+                            <td>$850.00</td>
+                        </tr>
+                        <tr>
+                            <td>#2</td>
+                            <td><strong>V-18765432</strong></td>
+                            <td>Ana María García Salcedo</td>
+                            <td>Recursos Humanos</td>
+                            <td><span class="type-badge badge-admin">Administrativo</span></td>
+                            <td>$720.00</td>
+                        </tr>
+                        <tr>
+                            <td>#3</td>
+                            <td><strong>V-23456789</strong></td>
+                            <td>Luis Alberto Paredes Rivas</td>
+                            <td>Operaciones y Mantenimiento</td>
+                            <td><span class="type-badge badge-obrero">Obrero</span></td>
+                            <td>$450.00</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tabla: Asistencias Recientes -->
+        <div class="section-card">
+            <div class="section-header">
+                <div class="section-title">
+                    <span>⏱️ Registro de Asistencias Recientes</span>
+                    <span class="badge-count">2 registros</span>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="custom-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Empleado</th>
+                            <th>Cédula</th>
+                            <th>Entrada</th>
+                            <th>Salida</th>
+                            <th>Marcación</th>
+                            <th>Observación</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Hoy</td>
+                            <td>Carlos Eduardo Mendoza</td>
+                            <td>V-10293847</td>
+                            <td><span style="color: #34d399; font-weight: 600;">07:55:00</span></td>
+                            <td><span style="color: #f87171; font-weight: 600;">16:05:00</span></td>
+                            <td><span class="type-badge badge-bio">Biométrico</span></td>
+                            <td>Puntual</td>
+                        </tr>
+                        <tr>
+                            <td>Hoy</td>
+                            <td>Ana María García</td>
+                            <td>V-18765432</td>
+                            <td><span style="color: #34d399; font-weight: 600;">08:02:00</span></td>
+                            <td><span style="color: #f87171; font-weight: 600;">16:00:00</span></td>
+                            <td><span class="type-badge badge-card">Tarjeta</span></td>
+                            <td>Sin novedades</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Modal Explorador de Código -->
+    <div class="modal-overlay" id="codeModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3 style="font-size: 1.1rem; color: #fff; font-weight: 700;">📂 Código Fuente del Proyecto (PHP & MySQL)</h3>
+                <button type="button" class="btn-close-modal" onclick="closeCodeModal()">✕</button>
+            </div>
+            <div class="modal-tabs">
+                <button type="button" class="tab-btn active" onclick="showTab('sql')">control_asistencia_nomina.sql</button>
+                <button type="button" class="tab-btn" onclick="showTab('login')">login_process.php</button>
+                <button type="button" class="tab-btn" onclick="showTab('db')">config/db.php</button>
+                <button type="button" class="tab-btn" onclick="showTab('dashboard')">dashboard.php</button>
+            </div>
+            <div class="modal-body">
+                <div class="code-container" id="codeDisplay">Cargando código...</div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="dashboard-footer">
+        Sistema de Control de Asistencia y Nómina &bull; Demo para GitHub Pages &bull; Compatible con XAMPP (PHP + MariaDB)
+    </footer>
+
+    <script>
+        // Cargar datos de sesión si existen en sessionStorage
+        document.addEventListener('DOMContentLoaded', () => {
+            const user = sessionStorage.getItem('auth_user') || 'Carlos Eduardo Mendoza';
+            const role = sessionStorage.getItem('auth_role') || 'Administrador';
+            const depto = sessionStorage.getItem('auth_depto') || 'Tecnología e Informática';
+
+            document.getElementById('welcomeName').textContent = user;
+            document.getElementById('userNameLabel').textContent = user;
+            document.getElementById('userRoleLabel').textContent = role + ' • ' + depto;
+        });
+
+        // Modal de código
+        const codeSnippets = {
+            sql: `-- BASE DE DATOS: control_asistencia_nomina\\n-- 7 tablas relacionales + 1 tabla de usuarios\\n\\nCREATE DATABASE IF NOT EXISTS control_asistencia_nomina;\\nUSE control_asistencia_nomina;\\n\\nCREATE TABLE departamento (\\n  id_departamento INT(11) AUTO_INCREMENT PRIMARY KEY,\\n  nombre_departamento VARCHAR(100) NOT NULL,\\n  descripcion VARCHAR(255)\\n);\\n\\nCREATE TABLE empleado (\\n  id_empleado INT(11) AUTO_INCREMENT PRIMARY KEY,\\n  cedula VARCHAR(20) NOT NULL UNIQUE,\\n  nombres VARCHAR(100) NOT NULL,\\n  apellidos VARCHAR(100) NOT NULL,\\n  fecha_ingreso DATE NOT NULL,\\n  tipo_empleado ENUM('Administrativo', 'Obrero') NOT NULL,\\n  sueldo_base_mensual DECIMAL(10,2) NOT NULL,\\n  id_departamento INT(11) NOT NULL,\\n  FOREIGN KEY (id_departamento) REFERENCES departamento(id_departamento)\\n);\\n\\nCREATE TABLE usuario (\\n  id_usuario INT(11) AUTO_INCREMENT PRIMARY KEY,\\n  id_empleado INT(11),\\n  usuario VARCHAR(50) NOT NULL UNIQUE,\\n  password VARCHAR(255) NOT NULL,\\n  rol ENUM('Administrador', 'Supervisor', 'Empleado') DEFAULT 'Administrador',\\n  estado ENUM('Activo', 'Inactivo') DEFAULT 'Activo'\\n);`,
+            login: `<?php\\n// Procesamiento seguro de Login con PDO y password_verify()\\nsession_start();\\nrequire_once 'config/db.php';\\n\\n$usuario = trim($_POST['usuario'] ?? '');\\n$password = trim($_POST['password'] ?? '');\\n\\n$stmt = $pdo->prepare("SELECT u.*, e.nombres, e.apellidos FROM usuario u LEFT JOIN empleado e ON u.id_empleado = e.id_empleado WHERE u.usuario = :usr OR e.cedula = :ced LIMIT 1");\\n$stmt->execute([':usr' => $usuario, ':ced' => $usuario]);\\n$user = $stmt->fetch();\\n\\nif ($user && password_verify($password, $user['password'])) {\\n    $_SESSION['id_usuario'] = $user['id_usuario'];\\n    $_SESSION['nombre'] = $user['nombres'] . ' ' . $user['apellidos'];\\n    echo json_encode(['success' => true, 'redirect' => 'dashboard.php']);\\n} else {\\n    echo json_encode(['success' => false, 'message' => 'Credenciales inválidas']);\\n}`,
+            db: `<?php\\n// Conexión PDO\\n$dsn = "mysql:host=127.0.0.1;dbname=control_asistencia_nomina;charset=utf8mb4";\\ntry {\\n    $pdo = new PDO($dsn, 'root', '', [\\n        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,\\n        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC\\n    ]);\\n} catch (PDOException $e) {\\n    die('Error de conexión: ' . $e->getMessage());\\n}`,
+            dashboard: `<?php\\nsession_start();\\nif (!isset($_SESSION['id_usuario'])) { header('Location: index.php'); exit; }\\nrequire_once 'config/db.php';\\n// Conteo de empleados, departamentos y asistencias en MySQL...\\n?>`
+        };
+
+        function openCodeModal() {
+            document.getElementById('codeModal').style.display = 'flex';
+            showTab('sql');
+        }
+
+        function closeCodeModal() {
+            document.getElementById('codeModal').style.display = 'none';
+        }
+
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('codeDisplay').textContent = codeSnippets[tabName].replace(/\\n/g, '\\n');
+        }
+    </script>
+</body>
+</html>

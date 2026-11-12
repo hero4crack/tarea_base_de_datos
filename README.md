@@ -1,96 +1,99 @@
 # Sistema de Control de Asistencia y Nómina 🚀
+### Proyecto PHP 8 + MySQL | Compatible con XAMPP y GitHub Pages
 
-Proyecto desarrollado en **PHP 8 + MySQL** con diseño profesional, interfaz moderna con estilo glassmorphism, efectos visuales y animaciones fluidas para entrega académica.
+Sistema de gestión laboral y control de asistencia con interfaz moderna estilo **Glassmorphism**, micro-interacciones, efectos visuales y animaciones fluidas.
+
+---
+
+## 🌐 Publicación en GitHub Pages (Para compartir con tus compañeros)
+
+Como **GitHub Pages** aloja sitios estáticos en la nube (no ejecuta servidores locales de PHP ni motores de MySQL directamente), este proyecto incluye una **versión híbrida dual inteligente**:
+
+- **En XAMPP (`http://localhost/tarea_base_de_datos/`):**  
+  Ejecuta el backend real en **PHP 8 + MariaDB**, procesando las consultas SQL a la base de datos `control_asistencia_nomina` mediante PDO y contraseñas cifradas con BCRYPT.
+  
+- **En GitHub Pages (`https://tu-usuario.github.io/tu-repositorio/`):**  
+  Ejecuta la **Live Demo interactiva (`index.html` y `dashboard.html`)** con las mismas animaciones, login interactivo funcional, tablas, métricas y un visor integrado para que tus compañeros y el profesor puedan ver el código PHP y el script SQL directamente en el navegador.
+
+---
+
+## 🚀 Pasos para subirlo a GitHub y activar GitHub Pages
+
+### 1. Inicializar Git y subir tu proyecto
+Abre una terminal en tu carpeta:
+```bash
+cd C:\xampp\htdocs\tarea_base_de_datos
+git init
+git add .
+git commit -m "feat: Sistema de Asistencia y Nómina completo con soporte para GitHub Pages"
+```
+
+Crea un repositorio en tu cuenta de GitHub (ejemplo: `tarea_base_de_datos`) y conéctalo:
+```bash
+git branch -M main
+git remote add origin https://github.com/TU_USUARIO/TU_REPOSITORIO.git
+git push -u origin main
+```
+
+### 2. Activar GitHub Pages en 1 minuto
+1. Entra a tu repositorio en GitHub.
+2. Ve a la pestaña **Settings** (Configuración) en la parte superior.
+3. En el menú izquierdo, haz clic en **Pages**.
+4. En **Build and deployment > Branch**, selecciona:
+   - Rama: **`main`**
+   - Carpeta: **`/ (root)`**
+5. Haz clic en **Save** (Guardar).
+6. En un par de minutos, GitHub te dará tu enlace público:  
+   👉 `https://TU_USUARIO.github.io/TU_REPOSITORIO/`
+
+---
+
+## 🔑 Credenciales para iniciar sesión (Tanto en Local como en GitHub Pages)
+
+Puedes hacer clic en los botones interactivos en la pantalla de login para rellenar los campos al instante:
+
+| Usuario o Cédula | Contraseña | Rol | Nombre del Empleado |
+| :--- | :--- | :--- | :--- |
+| **`admin`** | `admin123` | Administrador | Carlos Eduardo Mendoza |
+| **`recursoshumanos`** | `admin123` | Supervisor | Ana María García |
+| **`V-10293847`** *(Cédula)* | `admin123` | Administrador | Carlos Eduardo Mendoza |
 
 ---
 
 ## 📁 Estructura del Proyecto
 
 ```
-control_asistencia_nomina/
+tarea_base_de_datos/
+│
+├── index.html                  # Entrada para GitHub Pages (Animaciones + Login interactivo)
+├── dashboard.html              # Panel de control para GitHub Pages con Visor de Código PHP/SQL
+├── index.php                   # Entrada para XAMPP con backend PHP
+├── login_process.php           # Autenticación segura PHP + PDO + password_verify()
+├── dashboard.php               # Panel de control PHP conectado a MySQL
+├── logout.php                  # Cierre de sesión PHP
 │
 ├── config/
-│   └── db.php                  # Conexión PDO segura con UTF-8 y manejo de excepciones
+│   ├── db.php                  # Conexión PDO a MariaDB
+│   └── session.php             # Configuración segura de sesiones
 │
 ├── database/
-│   └── control_asistencia_nomina.sql  # Script SQL completo (Tablas + Relaciones + Datos de prueba)
+│   └── control_asistencia_nomina.sql # 7 tablas del diagrama relacional + tabla usuarios + datos
 │
 ├── assets/
-│   ├── css/
-│   │   └── style.css           # Estilos modernos, Glassmorphism y keyframes de animación
-│   └── js/
-│       └── main.js             # Validación, fetch AJAX, alternar contraseña y spinner
-│
-├── index.php                   # Vista de Login con diseño corporativo y credenciales demo
-├── login_process.php           # Backend seguro de autenticación (password_verify y sesiones)
-├── dashboard.php               # Panel principal post-login con métricas y tablas del sistema
-├── logout.php                  # Cierre seguro de sesión
-└── README.md                   # Esta guía
+│   ├── css/style.css           # Estilos Glassmorphism, orbes flotantes y keyframes
+│   └── js/main.js              # Validación, AJAX, alternar contraseña y spinner
 ```
 
 ---
 
-## 🗄️ Estructura de la Base de Datos (`control_asistencia_nomina`)
+## 🗄️ Base de Datos (`control_asistencia_nomina`)
 
-El diseño de la base de datos cumple al 100% con el diccionario de datos del diagrama relacional:
-
-1. **`departamento`**: Almacena las áreas de la empresa (`id_departamento`, `nombre_departamento`, `descripcion`).
-2. **`empleado`**: Ficha del trabajador con su cédula, nombres, tipo (Administrativo/Obrero), sueldo base y clave foránea al departamento.
-3. **`usuario`**: Tabla de autenticación vinculada al empleado (`usuario`, `password` hasheada con BCRYPT, `rol`, `estado`).
-4. **`asistencia`**: Control diario de marcaciones (`hora_entrada`, `hora_salida`, `tipo_marcacion` Enum: Biométrico/Tarjeta, observación) con clave única compuesta `(id_empleado, fecha)`.
-5. **`bono`**: Registro de bonificaciones otorgadas a los empleados.
-6. **`concepto_nomina`**: Catálogo de asignaciones y deducciones legales y contractuales.
-7. **`periodo_nomina`**: Períodos quincenales/mensuales de nómina (Abierto/Cerrado).
-8. **`detalle_nomina`**: Detalle del cálculo de conceptos aplicados a cada empleado en cada período.
-
----
-
-## ⚙️ Pasos para Instalar y Ejecutar en XAMPP
-
-### Paso 1: Importar la Base de Datos en phpMyAdmin
-1. Abre el **XAMPP Control Panel** e inicia los módulos **Apache** y **MySQL**.
-2. Entra a tu navegador e ingresa a:  
-   👉 [http://localhost/phpmyadmin](http://localhost/phpmyadmin)
-3. En la barra superior, haz clic en la pestaña **Importar** (o crea la base de datos `control_asistencia_nomina`).
-4. Selecciona el archivo:  
-   `database/control_asistencia_nomina.sql`
-5. Presiona **Importar** (o **Continuar**). ¡Listo! Se crearán todas las tablas y datos de muestra.
-
-### Paso 2: Ejecutar el Proyecto
-
-#### Opción A (Recomendada con XAMPP):
-Copia o mueve la carpeta `control_asistencia_nomina` dentro de:  
-`C:\xampp\htdocs\`  
-Luego abre tu navegador en:  
-👉 **`http://localhost/control_asistencia_nomina/`**
-
-#### Opción B (Servidor Integrado de PHP rápido):
-Abre una terminal en la carpeta del proyecto y ejecuta:
-```bash
-php -S localhost:8000
-```
-Y abre:  
-👉 **`http://localhost:8000/`**
-
----
-
-## 🔑 Credenciales de Acceso para la Tarea
-
-| Usuario / Cédula | Contraseña | Rol | Nombre Empleado |
-| :--- | :--- | :--- | :--- |
-| **`admin`** | `admin123` | Administrador | Carlos Eduardo Mendoza |
-| **`recursoshumanos`** | `admin123` | Supervisor | Ana María García |
-| **`V-10293847`** | `admin123` | Administrador | Acceso directo con Cédula |
-
-*(En la pantalla de inicio de sesión tienes botones interactivos de 1 clic para autocompletar estas credenciales durante tu exposición).*
-
----
-
-## ✨ Características y Animaciones Implementadas
-- **Orbes de fondo flotantes**: Animación CSS pura con `@keyframes floatOrb` suave y ligera.
-- **Glassmorphism**: Efecto translúcido moderno con `backdrop-filter: blur(20px)` y bordes sutiles.
-- **Micro-interacciones en Inputs**: Brillo y enfoque con gradiente azul-índigo corporativo.
-- **Alternar Contraseña**: Botón para ver y ocultar la clave con animación de icono SVG.
-- **Feedback de Error / Éxito**: Animación de sacudida (*shake*) ante credenciales incorrectas.
-- **Botón con Spinner**: Indicador de carga asíncrono mientras valida la información con AJAX (sin recargar la página).
-- **Seguridad Robusta**: Consultas preparadas contra inyección SQL (PDO) y contraseñas cifradas con `password_hash()` de PHP.
+Incluye las tablas del diccionario de datos:
+1. `departamento`
+2. `empleado`
+3. `usuario`
+4. `asistencia` (Índice único diario por empleado y fecha)
+5. `bono`
+6. `concepto_nomina`
+7. `periodo_nomina`
+8. `detalle_nomina`
